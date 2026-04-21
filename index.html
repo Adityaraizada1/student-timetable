@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A modern, student-friendly weekly timetable viewer with filtering, dark mode, and color-coded subjects.">
+    <title>Weekly Timetable Viewer — Student Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- ══════════════════════════════════════════════════
+         TOP NAVIGATION BAR
+         ══════════════════════════════════════════════════ -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar__brand">
+            <i class="ph ph-calendar-dots navbar__logo"></i>
+            <span class="navbar__title">Timetable</span>
+            <span class="navbar__badge">Student</span>
+        </div>
+
+        <div class="navbar__actions">
+            <!-- Search Bar -->
+            <div class="search-box" id="searchBox">
+                <i class="ph ph-magnifying-glass search-box__icon"></i>
+                <input
+                    type="text"
+                    id="searchInput"
+                    class="search-box__input"
+                    placeholder="Search subjects..."
+                    autocomplete="off"
+                >
+                <kbd class="search-box__kbd">⌘K</kbd>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button class="btn-icon" id="themeToggle" aria-label="Toggle dark mode">
+                <i class="ph ph-sun" id="themeIcon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ══════════════════════════════════════════════════
+         MAIN CONTENT
+         ══════════════════════════════════════════════════ -->
+    <main class="main">
+
+        <!-- Hero / Header Section -->
+        <header class="hero">
+            <div class="hero__text">
+                <h1 class="hero__title">Weekly Timetable</h1>
+                <p class="hero__subtitle" id="heroSubtitle">Your schedule at a glance — stay organized, stay ahead.</p>
+            </div>
+            <div class="hero__meta">
+                <div class="hero__clock" id="heroClock">
+                    <i class="ph ph-clock"></i>
+                    <span id="liveTime">--:--:--</span>
+                </div>
+                <div class="hero__date" id="heroDate">
+                    <i class="ph ph-calendar-blank"></i>
+                    <span id="liveDate">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ── Toolbar: Filters + Actions ── -->
+        <section class="toolbar" id="toolbar">
+            <div class="toolbar__filters">
+                <!-- Day Filter -->
+                <div class="filter-group">
+                    <label class="filter-group__label" for="dayFilter">
+                        <i class="ph ph-funnel-simple"></i> Day
+                    </label>
+                    <select id="dayFilter" class="filter-select">
+                        <option value="all">All Days</option>
+                    </select>
+                </div>
+
+                <!-- Subject Filter -->
+                <div class="filter-group">
+                    <label class="filter-group__label" for="subjectFilter">
+                        <i class="ph ph-book-open-text"></i> Subject
+                    </label>
+                    <select id="subjectFilter" class="filter-select">
+                        <option value="all">All Subjects</option>
+                    </select>
+                </div>
+
+                <!-- Reset -->
+                <button class="btn-secondary" id="resetFilters">
+                    <i class="ph ph-arrows-counter-clockwise"></i>
+                    Reset
+                </button>
+            </div>
+
+            <div class="toolbar__actions">
+                <!-- Add / Edit Toggle -->
+                <button class="btn-primary" id="addEditBtn">
+                    <i class="ph ph-plus-circle"></i>
+                    Add Class
+                </button>
+
+                <!-- Export -->
+                <button class="btn-secondary" id="exportBtn">
+                    <i class="ph ph-download-simple"></i>
+                    Export
+                </button>
+            </div>
+        </section>
+
+        <!-- ── Subject Legend ── -->
+        <section class="legend-bar" id="legendBar">
+            <span class="legend-bar__title"><i class="ph ph-palette"></i> Subjects</span>
+            <div class="legend-bar__items" id="legendItems">
+                <!-- Dynamically generated -->
+            </div>
+        </section>
+
+        <!-- ── Current Time Indicator ── -->
+        <div class="current-slot" id="currentSlot" style="display:none;">
+            <i class="ph ph-bell-ringing"></i>
+            <span id="currentSlotText">You currently have: —</span>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════
+             TIMETABLE GRID
+             ══════════════════════════════════════════════════ -->
+        <div class="table-wrapper" id="tableWrapper">
+            <table class="timetable" id="timetable">
+                <thead id="timetableHead">
+                    <!-- Dynamically generated -->
+                </thead>
+                <tbody id="timetableBody">
+                    <!-- Dynamically generated -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════
+             ADD / EDIT MODAL
+             ══════════════════════════════════════════════════ -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal" id="modal">
+                <div class="modal__header">
+                    <h2 class="modal__title" id="modalTitle">
+                        <i class="ph ph-pencil-simple-line"></i> Add New Class
+                    </h2>
+                    <button class="btn-icon" id="modalClose" aria-label="Close modal">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <form class="modal__form" id="classForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="formDay">Day</label>
+                            <select id="formDay" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="formTime">Time Slot</label>
+                            <select id="formTime" required></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="formSubject">Subject</label>
+                        <input type="text" id="formSubject" placeholder="e.g. Mathematics" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="formTeacher">Teacher</label>
+                            <input type="text" id="formTeacher" placeholder="e.g. Dr. Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="formRoom">Room</label>
+                            <input type="text" id="formRoom" placeholder="e.g. A-101">
+                        </div>
+                    </div>
+                    <div class="modal__actions">
+                        <button type="button" class="btn-secondary" id="modalCancel">Cancel</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="ph ph-check-circle"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Export Menu -->
+        <div class="export-menu" id="exportMenu">
+            <button class="export-menu__item" id="exportPNG">
+                <i class="ph ph-image"></i> Export as PNG
+            </button>
+            <button class="export-menu__item" id="exportPDF">
+                <i class="ph ph-file-pdf"></i> Export as PDF
+            </button>
+        </div>
+
+    </main>
+
+    <!-- ══════════════════════════════════════════════════
+         TOAST NOTIFICATIONS
+         ══════════════════════════════════════════════════ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- html2canvas for export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- App Script -->
+    <script src="script.js"></script>
+</body>
+</html>
